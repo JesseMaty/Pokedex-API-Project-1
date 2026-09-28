@@ -3,6 +3,7 @@ const { json } = require('stream/consumers');
 
 const pokedex = JSON.parse(fs.readFileSync(`${__dirname}/pokedex.json`));
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
+const documentation = fs.readFileSync(`${__dirname}/../client/documentation.html`);
 const style = fs.readFileSync(`${__dirname}/../client/style.css`);
 
 const respond = (request, response, status, object, type) => {
@@ -27,6 +28,10 @@ const getIndex = (request, response) =>
 
 const getStyle = (request, response) => {
     respond(request, response, 200, style, 'text/css');
+}
+
+const getDocumentation = (request, response) => {
+    respond(request, response, 200, documentation, 'text/html');
 }
 
 const getPokemon = (request, response) => {
@@ -61,6 +66,7 @@ const getPokemonByFilter = (request, response) => {
 module.exports = {
     getIndex,
     getStyle,
+    getDocumentation,
     getPokemon,
     getPokemonByFilter,
 }

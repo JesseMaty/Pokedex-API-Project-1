@@ -6,6 +6,7 @@ const port = process.env.PORT || process.env.NODEPORT || 3000;
 const urlStruct = {
     '/': responseHandler.getIndex,
     '/style.css': responseHandler.getStyle,
+    '/documentation': responseHandler.getDocumentation,
     '/getPokemon': responseHandler.getPokemon,
     '/getPokemonByFilter': responseHandler.getPokemonByFilter,
     default: responseHandler.getIndex,
