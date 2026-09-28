@@ -35,14 +35,30 @@ const getDocumentation = (request, response) => {
 }
 
 const getPokemon = (request, response) => {
-    const searchStruct = {
-        id: request.query.id,
-        name: request.query.name,
+    // Format name
+    let name = request.query.name;
+    if(name){
+        name = name.trim();
+        name = `${name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()}`;
     }
 
+
+    let type = request.query.type;
+    if(type) {
+        type = type.split(',')
+    }
+
+    const searchStruct = {
+        id: request.query.id,
+        name: name,
+        type: type,
+    };
+    
     const pokemonObj = 
         pokedex.find(pokemon => pokemon.id === parseInt(searchStruct.id, 10)) ||
-        pokedex.find(pokemon => pokemon.name === searchStruct.name);
+        pokedex.find(pokemon => pokemon.name === searchStruct.name) ||
+        pokedex.filter(pokemon => {
+        });
     
     if(!pokemonObj)
     {
