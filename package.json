@@ -2,6 +2,14 @@
   "name": "project-1-pokedex",
   "version": "1.0.0",
   "description": "A api that serves pokedex information",
+  "homepage": "https://github.com/JesseMaty/Pokedex-API-Project-1#readme",
+  "bugs": {
+    "url": "https://github.com/JesseMaty/Pokedex-API-Project-1/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JesseMaty/Pokedex-API-Project-1.git"
+  },
   "license": "ISC",
   "author": "JM",
   "type": "commonjs",
