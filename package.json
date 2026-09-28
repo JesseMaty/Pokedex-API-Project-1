@@ -1,0 +1,13 @@
+{
+  "name": "project-1-pokedex",
+  "version": "1.0.0",
+  "description": "A api that serves pokedex information",
+  "license": "ISC",
+  "author": "JM",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "test": "echo \"Error: no test specified\" "
+  }
+}
