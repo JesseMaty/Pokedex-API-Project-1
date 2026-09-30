@@ -1,0 +1,26 @@
+#content{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    
+}
+
+.card{
+    background-color: yellow;
+    border: 1rem black;
+    display:flex;
+    flex-direction:column;
+    width: 20rem;
+    margin: 2rem;
+    padding: 1.5rem;
+}
+
+.card img{
+    display:block;
+    background-color: aliceblue;
+    border: 5rem black;
+    width: 75%;
+    margin:auto;
+    margin-top: 0;
+    margin-bottom: 0;
+}

@@ -8,7 +8,8 @@ const urlStruct = {
     '/style.css': responseHandler.getStyle,
     '/documentation': responseHandler.getDocumentation,
     '/getPokemon': responseHandler.getPokemon,
-    '/getPokemonByFilter': responseHandler.getPokemonByFilter,
+    '/getFilteredPokemon': responseHandler.getFilteredPokemon,
+    '/getPokemonTypes': responseHandler.getPokemonTypes,
     default: responseHandler.getIndex,
 };
 
@@ -18,7 +19,7 @@ const onRequest = (request, response) => {
 
     console.log(request.url);
 
-    request.query = Object.fromEntries(parsedUrl.searchParams);
+    request.query = parsedUrl.searchParams;
     request.acceptedTypes = request.headers.accept ? request.headers.accept.split(',') : [];
 
     const handler = urlStruct[parsedUrl.pathname];
