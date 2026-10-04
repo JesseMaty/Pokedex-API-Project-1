@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const pokedex = JSON.parse(fs.readFileSync(`${__dirname}/pokedex.json`));
 const typeList = ['Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice',
-     'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon'];
+    'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon'];
 
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 const documentation = fs.readFileSync(`${__dirname}/../client/documentation.html`);
@@ -40,28 +40,76 @@ const getPokemonTypes = (request, response) => {
 }
 
 const getPokemon = (request, response) => {
-    // Format name
-    let name = request.query.get('name');
-    name = formatText(name);
-
-    const searchStruct = {
+    const filterStruct = {
         id: request.query.get('id'),
-        name: name,
+        name: request.query.get('name'),
+        type: request.query.getAll('type'),
+        weakness: request.query.getAll('weakness'),
     };
 
-    const pokemonObj =
-        pokedex.find(pokemon => pokemon.id === parseInt(searchStruct.id, 10)) ||
-        pokedex.find(pokemon => pokemon.name === searchStruct.name);
+    console.log(`Filter Struct: ${filterStruct}`);
 
-    if (!pokemonObj) {
+    // Were any search params given?
+    if ((filterStruct.id === '' && filterStruct.name === '' && filterStruct.type.length >= 0 && filterStruct.weakness.length >= 0)) {
         const responseJSON = {
-            id: 'Not Found',
+            id: 'Bad Request',
+            message: 'Missing Params: Missing name, id, type, or weakness parameters',
         };
-        responseJSON.message = 'Can\'t find pokemon' + (searchStruct.id ? ` with id ${id}` : searchStruct.name ? ` with name ${name}` : '.');
+        return respondJSON(request, response, 400, responseJSON);
+    }
+
+    const filteredPokemon = filterPokemon(filterStruct);
+
+    if (filteredPokemon.length <= 0) {
+        const responseJSON = {
+            id: "Not Found",
+            message: 'Couldn\'t find pokemon with given parameters'
+        }
         return respondJSON(request, response, 404, responseJSON);
     }
-    respondJSON(request, response, 200, [pokemonObj]);
+
+    respondJSON(request, response, 200, filteredPokemon);
 }
+
+const filterPokemon = (filterStruct) => {
+    const { name, id, type, weakness } = filterStruct || {};
+
+    console.log(filterStruct);
+    // If no filter params
+    if (!(name || id || type || weakness)) {
+        return [];
+    }
+
+    let filter = pokedex.filter(pokemon => {
+        let hasName = name ? pokemon.name.toLowerCase().includes(name.toLowerCase()) : true;
+        let hasId = id ? pokemon.id === parseInt(id, 10) : true;
+        let hasType = type;
+        let hasWeakness = weakness;
+        for (let i = 0; i < type.length; i++) {
+            if (!pokemon.type.includes(type[i])) {
+                hasType = false;
+                break;
+            }
+        };
+        for (let i = 0; i < weakness.length; i++) {
+            if (!pokemon.weaknesses.includes(weakness[i])) {
+                hasWeakness = false;
+                break;
+            }
+        }
+
+        console.log(`${pokemon.name} has name ${name}: ${hasName}
+            has id ${id}: ${hasId}
+            has type ${type}: ${hasType}
+            has weakness ${weakness}: ${hasWeakness}`)
+
+        return hasName && hasId && hasType && hasWeakness;
+    });
+
+    return filter;
+}
+
+
 
 const getFilteredPokemon = (request, response) => {
     // Format types query
@@ -101,20 +149,13 @@ const getFilteredPokemon = (request, response) => {
         return true;
     })
 
-    if(pokemon){
+    if (pokemon) {
         responseCode = 200;
         return respondJSON(request, response, responseCode, pokemon);
     }
     return respondJSON(request, response, responseCode, responseJSON);
 }
 
-const formatText = (text) => {
-    if (text) {
-        let formattedText = text.trim();
-        formattedText = `${text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()}`;
-        return formattedText;
-    }
-}
 module.exports = {
     getIndex,
     getStyle,
