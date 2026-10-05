@@ -40,7 +40,7 @@
 
                 if (data.message) p.textContent = data.message;
                 else{
-                    if(createCards) data.forEach((pokemon) => content.appendChild(createPokemonCard(pokemon)));
+                    if(data[0]['img']) data.forEach((pokemon) => content.appendChild(createPokemonCard(pokemon)));
                     else p.textContent = JSON.stringify(data);
                 }
             }
@@ -115,10 +115,10 @@
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
-                }
+                },
             });
 
-            handleResponse(response, method, createCards)
+            handleResponse(response, method, createCards);
         };
 
         const init = () => {
