@@ -1,0 +1,17 @@
+I am using the Pokedex.json data set provided. 
+For this milestone, I have a functioning server and client page, with 4 get endpoints.
+ - /getPokemon
+ - /getPokemonNames
+ - /getPokemonTypes
+ - /getAllPokemon
+ 
+ Each endpoint has a functioning form associated with it that sends fetch requests and handles responses. 
+ /getPokemon and /getPokemon names allow to be filtered by name, id, types, and weaknesses. There is currently
+ a method for creating custom pokemon card divs that display all the information, but it is commented out to be reimplemented later.
+
+ The work thats left is creating 2 post endpoints: /addPokemon & /removePokemon. /addPokemon will add a new pokemon to the 
+ pokedex and the next open index. It will allow for customizing name, type, weaknesses, weight, height, as well as supplying a
+ custom image url. It's ID will be automatically determined based on index in pokedex. /removePokemon will remove a pokemon from 
+ the pokedex based on a given name or id. Furthermore, in server.js, I need to create a /notFound endpoint to default to. 
+ I also want to refactor a majority of the javascript within client.html to be more efficient and readable. I also plan on 
+ improving the css and style of both the documentation page and index page. 

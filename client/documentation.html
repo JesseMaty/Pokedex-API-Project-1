@@ -1,22 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokedex API Documentation</title>
 </head>
+
 <body>
-    <h1>Pokedex API</h1>
+    <h1>Pokedex API Documentation</h1>
     <hr>
-    <h2>4 Get Endpoints</h2>
-    <ul>
-        <li><h3>Get Pokemon by Name</h3></li>
-        <p>/getPokemon?name=</p>
-        <li><h3>Get Pokemon by ID</h3></li>
-        <p>/getPokemon?id=</p>
-        <li><h3>Get Pokemon(s) by type(s) and weakness(es)</h3></li>
-        <p>/getFilteredPokemon?type=&weakness=</p>
-    </ul>
-    <h2>2 POST Endpoints</h2>
+    <div class="endpoint">
+        <h2 class="collapsible">/getPokemon
+            <span class="methods">
+                <code>GET</code>
+                <code>HEAD</code>
+            </span>
+        </h2>
+        <div class="content">
+            <div class="content-box">
+                <h3>Query Params</h3>
+                <p class="param">
+                    <code>name</code>
+                    (optional) - A pokemon's name to filter by
+                </p>
+                <p class="param">
+                    <code>id </code>
+                    (optional) - A pokemon's id to filter by
+                </p>
+                <p class="param">
+                    <code>type</code>
+                    (optional) - A pokemon's type(s) to filter by
+                </p>
+                <p class="param">
+                    <code>weakness</code>
+                    (optional) - A pokemon's weakness(es)to filter by
+                </p>
+                <h3>Returns</h3>
+                <p class="params">
+                    A JSON array of pokemon objects. <br>
+                    Format : <code>[{id: number, num: number, name: string, img: string, type: [string], height: string, weight: string,
+                    weaknesses: [string], next_evolution: [{num: number, name: string}]}]</code>
+                </p>
+                <h3>Examples</h3>
+                <section class="example">
+                    <p>Request: <code>/getPokemon?name=squirtle</code></p>
+                    <p>Result: <code>{"id": 7, "num": "007", "name": "Squirtle", 
+                        "img": "http://www.serebii.net/pokemongo/pokemon/007.png",
+                         "type": ["Water"], "height": "0.51 m", "weight": "9.0 kg", "weaknesses": ["Electric", "Grass"], "next_evolution": [{"num": "008", "name": "Wartortle"}, {"num": "009", "name": "Blastoise"}]}
+                    </code></p>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <h2 class="collapsible">/getPokemonNames
+            <span class="methods">
+                <code>GET</code>
+                <code>HEAD</code>
+            </span>
+        </h2>
+        <div class="content">
+            <div class="content-box">
+                <h3>Query Params</h3>
+                <p class="param">
+                    <code>name</code>
+                    (optional) - A pokemon's name to filter by
+                </p>
+                <p class="param">
+                    <code>id </code>
+                    (optional) - A pokemon's id to filter by
+                </p>
+                <p class="param">
+                    <code>type</code>
+                    (optional) - A pokemon's type(s) to filter by
+                </p>
+                <p class="param">
+                    <code>weakness</code>
+                    (optional) - A pokemon's weakness(es)to filter by
+                </p>
+                <h3>Returns</h3>
+                <p class="params">
+                    A JSON array of pokemon name strings. <br>
+                    Format : <code>["name1", "name2", "name3"]</code>
+                </p>
+                <h3>Examples</h3>
+                <section class="example">
+                    <p>Request: <code>/getPokemon?name=squ&type=water</code></p>
+                    <p>Result: <code>['Squirtle']</code></p>
+                </section>
+            </div>
+        </div>
+    </div>
+
+ <div class="endpoint">
+        <h2 class="collapsible">/getPokemonTypes
+            <span class="methods">
+                <code>GET</code>
+                <code>HEAD</code>
+            </span>
+        </h2>
+        <div class="content">
+            <div class="content-box">
+                <h3>Query Params</h3>
+                <p class="param">No supported params</p>
+            </div>
+                <h3>Returns</h3>
+                <p class="params">A JSON array of all pokemon types strings.</p>
+                <p class="params">Format: <code>["type1", "type2", ...]</code></p>
+                <h3>Examples</h3>
+                <section class="example">
+                    <p>Request: <code>/getPokemonTypes</code></p>
+                    <p>Result: <code>
+                        ["Normal", "Fire", "Water", ...]
+                    </code></p>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <h2 class="collapsible">/getAllPokemon
+            <span class="methods">
+                <code>GET</code>
+                <code>HEAD</code>
+            </span>
+        </h2>
+        <div class="content">
+            <div class="content-box">
+                <h3>Query Params</h3>
+                <p class="param">No supported params</p>
+                <h3>Returns</h3>
+                <p class="params">
+                    A JSON array of pokemon objects. <br>
+                    Format : <code>[{id: number, num: number, name: string, img: string, type: [string], height: string, weight: string,
+                    weaknesses: [string], next_evolution: [{num: number, name: string}]}]</code>
+                </p>
+                <h3>Examples</h3>
+                <section class="example">
+                    <p>Request: <code>/getAllPokemon</code></p>
+                    <p>Result: <code>{"id": 7, "num": "007", "name": "Squirtle", 
+                        "img": "http://www.serebii.net/pokemongo/pokemon/007.png",
+                         "type": ["Water"], "height": "0.51 m", "weight": "9.0 kg", "weaknesses": ["Electric", "Grass"], "next_evolution": [{"num": "008", "name": "Wartortle"}, {"num": "009", "name": "Blastoise"}, ...]}
+                    </code></p>
+                </section>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

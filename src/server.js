@@ -8,7 +8,8 @@ const urlStruct = {
     '/style.css': responseHandler.getStyle,
     '/documentation': responseHandler.getDocumentation,
     '/getPokemon': responseHandler.getPokemon,
-    '/getFilteredPokemon': responseHandler.getFilteredPokemon,
+    '/getAllPokemon': responseHandler.getAllPokemon,
+    '/getPokemonNames': responseHandler.getPokemonNames,
     '/getPokemonTypes': responseHandler.getPokemonTypes,
     default: responseHandler.getIndex,
 };
