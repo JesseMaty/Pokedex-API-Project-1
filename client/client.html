@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/style.css">
 
     <script>
-        const handleResponse = async (response, method) => {
+        const handleResponse = async (response, method, createCards = false) => {
             const content = document.querySelector('#content');
             content.textContent = '';
 
@@ -40,11 +40,9 @@
 
                 if (data.message) p.textContent = data.message;
                 else{
-                    p.textContent = JSON.stringify(data);
-                    console.log(data);
+                    if(createCards) data.forEach((pokemon) => content.appendChild(createPokemonCard(pokemon)));
+                    else p.textContent = JSON.stringify(data);
                 }
-
-                //     data.forEach((pokemon) => content.appendChild(createPokemonCard(pokemon)));
             }
 
             content.appendChild(p);
@@ -100,13 +98,13 @@
             return cardContent;
         }
 
-        const getPokemon = async (form) => {
+        const getPokemon = async (form, createCards = false) => {
             const url = new URL(form.action);
             const formData = new FormData(form);
 
             // Manually set search params
             formData.forEach((value, key) => {
-                url.searchParams.set(key, value);
+                url.searchParams.append(key, value);
             })
             const content = document.querySelector('#content');
             content.innerHTML = '';
@@ -120,7 +118,7 @@
                 }
             });
 
-            handleResponse(response, method)
+            handleResponse(response, method, createCards)
         };
 
         const init = () => {
@@ -131,7 +129,7 @@
 
             const getPokemonList = (e) => {
                 e.preventDefault();
-                getPokemon(getPokemonForm);
+                getPokemon(getPokemonForm, true);
                 return false;
             }
 
@@ -143,7 +141,7 @@
 
             const getAllPokemon = (e) => {
                 e.preventDefault();
-                getPokemon(getAllPokemonForm)
+                getPokemon(getAllPokemonForm, true)
                 return false;
             }
 
