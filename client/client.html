@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/style.css">
 
     <script>
-        const handleResponse = async (response, method, createCards = false) => {
+        const handleResponse = async (response, method) => {
             const content = document.querySelector('#content');
             content.textContent = '';
 
@@ -98,7 +98,7 @@
             return cardContent;
         }
 
-        const getPokemon = async (form, createCards = false) => {
+        const getPokemon = async (form) => {
             const url = new URL(form.action);
             const formData = new FormData(form);
 
@@ -118,7 +118,7 @@
                 },
             });
 
-            handleResponse(response, method, createCards);
+            handleResponse(response, method);
         };
 
         const init = () => {
@@ -129,7 +129,7 @@
 
             const getPokemonList = (e) => {
                 e.preventDefault();
-                getPokemon(getPokemonForm, true);
+                getPokemon(getPokemonForm);
                 return false;
             }
 
@@ -141,7 +141,7 @@
 
             const getAllPokemon = (e) => {
                 e.preventDefault();
-                getPokemon(getAllPokemonForm, true)
+                getPokemon(getAllPokemonForm)
                 return false;
             }
 
