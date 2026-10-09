@@ -137,6 +137,36 @@ const filterPokemon = (filterStruct) => {
     return filter;
 }
 
+// Adds a pokemon to the pokedex
+const addPokemon = (request, response) =>
+{
+    const body = request.body;
+    const {name, height, weight, type, weakness} = body || {};
+    console.log("ADDING POKEMON");
+    // Ensure Necessary data is included
+    if(name === '' || height || weight || type == [] || weakness == []){
+        const responseJSON = {
+            message: 'Must include a name, height, weight, type, and/or weakness',
+            id: 'Bad Request'
+        }
+
+        return respondJSON(request, response, 400, responseJSON);
+    }
+
+    // Check if pokemon name currently exists. If so, update it
+
+    if(name && type && weakness){
+        const newPokemon = {
+            name:name,
+            id: pokedex.length,
+            type:type,
+            weaknesses:weakness
+        }
+        pokedex.push(newPokemon);
+    }
+
+}
+
 module.exports = {
     getIndex,
     getStyle,
@@ -145,4 +175,5 @@ module.exports = {
     getPokemonNames,
     getAllPokemon,
     getPokemonTypes,
+    addPokemon,
 }

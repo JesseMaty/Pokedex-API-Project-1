@@ -11,6 +11,7 @@ const urlStruct = {
     '/getAllPokemon': responseHandler.getAllPokemon,
     '/getPokemonNames': responseHandler.getPokemonNames,
     '/getPokemonTypes': responseHandler.getPokemonTypes,
+    '/addPokemon' : responseHandler.addPokemon,
     default: responseHandler.getIndex,
 };
 

@@ -39,12 +39,10 @@
                 const data = await response.json();
 
                 if (data.message) p.textContent = data.message;
-                else {
-                    p.textContent = JSON.stringify(data);
-                    console.log(data);
+                else{
+                    if(data[0]['img']) data.forEach((pokemon) => content.appendChild(createPokemonCard(pokemon)));
+                    else p.textContent = JSON.stringify(data);
                 }
-
-                //     data.forEach((pokemon) => content.appendChild(createPokemonCard(pokemon)));
             }
 
             content.appendChild(p);
@@ -128,7 +126,7 @@
         const getPokemon = async (form) => {
             const response = await apiRequest(form);
 
-            handleResponse(response, "GET");
+            return handleResponse(response, "GET");
         };
 
         const init = () => {
@@ -136,11 +134,11 @@
             const getPokemonNamesForm = document.querySelector('#pokemonNamesForm');
             const getAllPokemonForm = document.querySelector('#allPokemonForm');
             const getPokemonTypeForm = document.querySelector('#pokemonTypeForm');
+            const addPokemonForm = document.querySelector('#addPokemonForm');
 
             const getPokemonList = (e) => {
                 e.preventDefault();
-                //getPokemon(getPokemonForm);
-                apiRequest(getPokemonForm);
+                getPokemon(getPokemonForm);
                 return false;
             }
 
@@ -159,6 +157,13 @@
             const getPokemonTypes = (e) => {
                 e.preventDefault();
                 fetch(getPokemon(getPokemonTypeForm)).then(response => response.JSON).then(handleResponse(response));
+                return false;
+            }
+
+            const addPokemon = async (e) => {
+                e.preventDefault();
+                response = await apiRequest(addPokemonForm, "POST");
+                handleResponse(apiRequest(addPokemonForm));
                 return false;
             }
 
