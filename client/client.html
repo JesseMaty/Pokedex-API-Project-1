@@ -39,7 +39,7 @@
                 const data = await response.json();
 
                 if (data.message) p.textContent = data.message;
-                else{
+                else {
                     p.textContent = JSON.stringify(data);
                     console.log(data);
                 }
@@ -100,27 +100,35 @@
             return cardContent;
         }
 
-        const getPokemon = async (form) => {
+        const apiRequest = async (form) => {
             const url = new URL(form.action);
             const formData = new FormData(form);
-
-            // Manually set search params
-            formData.forEach((value, key) => {
-                url.searchParams.set(key, value);
-            })
-            const content = document.querySelector('#content');
-            content.innerHTML = '';
-
             const method = formData.get('method');
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            });
 
-            handleResponse(response, method)
+            const options = {
+                method,
+                headers: {
+                    'Accept': 'application/json',
+                }
+            };
+
+            if (method === "GET" || method === "HEAD") {
+                formData.forEach((value, key) => {
+                    url.searchParams.set(key, value);
+                })
+            } else if (method === "POST") {
+                const formBody = JSON.stringify(Object.fromEntries(formData.entries()));
+                options.headers['Content-Type'] = 'application/json';
+                options.body = formBody;
+            }
+
+            return await fetch(url, options);
+        }
+
+        const getPokemon = async (form) => {
+            const response = await apiRequest(form);
+
+            handleResponse(response, "GET");
         };
 
         const init = () => {
@@ -131,7 +139,8 @@
 
             const getPokemonList = (e) => {
                 e.preventDefault();
-                getPokemon(getPokemonForm);
+                //getPokemon(getPokemonForm);
+                apiRequest(getPokemonForm);
                 return false;
             }
 
@@ -152,7 +161,7 @@
                 fetch(getPokemon(getPokemonTypeForm)).then(response => response.JSON).then(handleResponse(response));
                 return false;
             }
-            
+
             // Populate checkboxes with types
             const types = document.querySelectorAll('#types')
             const weaknesses = document.querySelectorAll('#weaknesses');
@@ -218,7 +227,7 @@
             </div>
         </div>
 
-         <div class="collapsible">
+        <div class="collapsible">
             <div class="content">
                 <div class="content-box">
                     <h3>/getPokemonNames</h3>
@@ -256,7 +265,7 @@
             </div>
         </div>
 
-                <div class="collapsible">
+        <div class="collapsible">
             <div class="content">
                 <div class="content-box">
                     <h3>/getPokemonTypes</h3>
@@ -264,6 +273,31 @@
                         <label><input type="radio" name="method" value="GET" checked>GET</label>
                         <label><input type="radio" name="method" value="HEAD">HEAD</label>
                         <button type="submit">Search Pokedex</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="collapsible">
+            <div class="content">
+                <div class="content-box">
+                    <h3>/addPokemon</h3>
+                    <form id='addPokemonForm' action="/addPokemon" method="post">
+                        <label>Name: <input type="text" name="name"></label>
+                        <label>Height: <input type="number" name="height"></label>
+                        <label>Weight: <input type="number" name="width"></label>
+                        <label>Image Link: <input type="text" name="img"></label>
+                        <fieldset>
+                            <legend>Filter Types</legend>
+                            <div id="types"></div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Filter Weaknesses</legend>
+                            <div id="weaknesses"></div>
+                        </fieldset>
+                        <button type="submit">Add Pokemon to Pokedex</button>
+
                     </form>
                 </div>
             </div>
