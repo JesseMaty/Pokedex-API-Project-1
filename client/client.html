@@ -101,7 +101,8 @@
         const apiRequest = async (form) => {
             const url = new URL(form.action);
             const formData = new FormData(form);
-            const method = formData.get('method');
+            const method = formData.get('method') || form.method;
+
 
             const options = {
                 method,
@@ -115,18 +116,20 @@
                     url.searchParams.set(key, value);
                 })
             } else if (method === "POST") {
-                const formBody = JSON.stringify(Object.fromEntries(formData.entries()));
                 options.headers['Content-Type'] = 'application/json';
-                options.body = formBody;
+                // options.body = Object.fromEntries(formData.entries());
+                options.body = {name: 'Bobby'};
             }
 
-            return await fetch(url, options);
+                console.log(`Body: ${options.body}`);
+
+            const response = await fetch(url, options);
+            handleResponse(response, method.toUpperCase());
         }
 
         const getPokemon = async (form) => {
             const response = await apiRequest(form);
-
-            return handleResponse(response, "GET");
+            return response;
         };
 
         const init = () => {
@@ -160,10 +163,9 @@
                 return false;
             }
 
-            const addPokemon = async (e) => {
+            const addPokemon = (e) => {
                 e.preventDefault();
-                response = await apiRequest(addPokemonForm, "POST");
-                handleResponse(apiRequest(addPokemonForm));
+                apiRequest(addPokemonForm);
                 return false;
             }
 
@@ -178,6 +180,7 @@
             getPokemonNamesForm.addEventListener('submit', getPokemonNameList);
             getAllPokemonForm.addEventListener('submit', getAllPokemon);
             getPokemonTypeForm.addEventListener('submit', getPokemonTypes);
+            addPokemonForm.addEventListener('submit', addPokemon);
         };
 
         const populateCheckboxes = async (content, type) => {
@@ -198,7 +201,6 @@
                 }
             });
         }
-
 
         window.onload = init;
     </script>
