@@ -38,9 +38,9 @@
             if (method !== "HEAD" && response.status !== 204) {
                 const data = await response.json();
 
-                if (data.message) p.textContent = data.message;
-                else{
-                    if(data[0]['img']) data.forEach((pokemon) => content.appendChild(createPokemonCard(pokemon)));
+                if (response.status !== 200) p.textContent = data.message;
+                else {
+                    if (data[0].name) data.forEach((pokemon) => content.appendChild(createPokemonCard(pokemon)));
                     else p.textContent = JSON.stringify(data);
                 }
             }
@@ -57,42 +57,40 @@
             const id = document.createElement('h3');
             const image = document.createElement('img');
             const dataContent = document.createElement('div');
+            const typeHeader = document.createElement('h3');
             const type = document.createElement('ul');
+            const weaknessesHeader = document.createElement('h3');
             const weaknesses = document.createElement('ul');
-            const height = document.createElement('p');
-            const weight = document.createElement('p');
+            const dimensions = document.createElement('div');
 
             // Assign/set up all necessary elements
             name.textContent = pokemon.name;
             id.textContent = 'ID: ' + pokemon.id;
             image.setAttribute('src', pokemon.img);
-            height.textContent = 'Height: ' + pokemon.height;
-            weight.textContent = 'Weight: ' + pokemon.weight;
-
-            cardContent.setAttribute('class', 'card');
-
+            dimensions.innerHTML = `<p><b>Height</b>: ${pokemon.height}</p><p><b>Weight</b>: ${pokemon.weight}</p><hr>`;
+            dimensions.setAttribute('style', 'display:flex; flex-direction: row; justify-content: space-evenly');
+            cardContent.setAttribute('class', `card ${pokemon.type[0].toLowerCase()}`);
             const createListElement = (listElement, parent) => {
                 const element = document.createElement('li');
                 element.textContent = listElement;
                 parent.appendChild(element);
             };
-            type.innerHTML = '<h3>Type</h3>';
+            typeHeader.innerHTML = "Type<hr>";
+            weaknessesHeader.innerHTML = "Weaknesses<hr>";
             pokemon.type.forEach((t) => createListElement(t, type))
-            weaknesses.innerHTML = '<h3>Weaknesses</h3>';
             pokemon.weaknesses.forEach((w) => createListElement(w, weaknesses))
 
             // Append elements in proper order
             cardContent.append(name, id, image, dataContent);
-            dataContent.append(height, weight, type, weaknesses);
+            dataContent.append(dimensions, typeHeader, type, weaknessesHeader, weaknesses);
 
             // If the pokemon has future evolutions, include them in card
             if (!isFinalEvolution) {
-                const nextEvolutionContent = document.createElement('div');
+                const nextEvolutionHeader = document.createElement('h3');
                 const nextEvolutions = document.createElement('ul');
-                nextEvolutions.innerHTML = '<h3>Next Evolutions<h3>'
+                nextEvolutionHeader.innerHTML = '<h3>Next Evolutions<h3><hr>';
                 pokemon.next_evolution.forEach((ne) => createListElement(`Name: ${ne.name}. Num: ${ne.num}`, nextEvolutions))
-                nextEvolutionContent.appendChild(nextEvolutions);
-                dataContent.appendChild(nextEvolutionContent);
+                dataContent.append(nextEvolutionHeader, nextEvolutions);
             }
 
             return cardContent;
@@ -101,8 +99,7 @@
         const apiRequest = async (form) => {
             const url = new URL(form.action);
             const formData = new FormData(form);
-            const method = formData.get('method') || form.method;
-
+            const method = (formData.get('method') || form.method).toUpperCase();
 
             const options = {
                 method,
@@ -112,19 +109,27 @@
             };
 
             if (method === "GET" || method === "HEAD") {
+                // Set serachParams manually to account for params with multiple values
                 formData.forEach((value, key) => {
-                    url.searchParams.set(key, value);
+                    url.searchParams.append(key, value);
                 })
-            } else if (method === "POST") {
+            } else if (method.toUpperCase() === "POST") {
+                const body = {
+                    name: formData.get('name'),
+                    id: parseInt(formData.get('id')) || undefined,
+                    height: formData.get('height'),
+                    weight: formData.get('weight'),
+                    img: formData.get('img'),
+                    type: formData.getAll('type'),
+                    weaknesses: formData.getAll('weaknesses'),
+                };
+
                 options.headers['Content-Type'] = 'application/json';
-                // options.body = Object.fromEntries(formData.entries());
-                options.body = {name: 'Bobby'};
+                options.body = JSON.stringify(body);
             }
 
-                console.log(`Body: ${options.body}`);
-
             const response = await fetch(url, options);
-            handleResponse(response, method.toUpperCase());
+            handleResponse(response, method);
         }
 
         const getPokemon = async (form) => {
@@ -138,6 +143,7 @@
             const getAllPokemonForm = document.querySelector('#allPokemonForm');
             const getPokemonTypeForm = document.querySelector('#pokemonTypeForm');
             const addPokemonForm = document.querySelector('#addPokemonForm');
+            const removePokemonForm = document.querySelector('#removePokemonForm');
 
             const getPokemonList = (e) => {
                 e.preventDefault();
@@ -169,38 +175,59 @@
                 return false;
             }
 
+            const removePokemon = (e) => {
+                e.preventDefault();
+                apiRequest(removePokemonForm);
+                return false;
+            }
+
             // Populate checkboxes with types
-            const types = document.querySelectorAll('#types')
-            const weaknesses = document.querySelectorAll('#weaknesses');
+            const types = document.querySelectorAll('.types')
+            const weaknesses = document.querySelectorAll('.weaknesses');
 
-            types.forEach(type => populateCheckboxes(type, 'type'));
-            weaknesses.forEach(weakness => populateCheckboxes(weakness, 'weakness'));
+            const populateCheckboxes = async (content, type, data) => {
+                for (let i = 0; i < data.length; i++) {
+                    const lb = document.createElement('label');
+                    lb.innerHTML = `${data[i]}: <input type='checkbox' name='${type}' value='${data[i]}'>`;
 
+                    content.appendChild(lb);
+                }
+            };
+
+            const pokemonTypes = fetch('/getPokemonTypes')
+                .then(response => response.json())
+                .then(data => {
+                    types.forEach(type => populateCheckboxes(type, 'type', data));
+                    weaknesses.forEach(weakness => populateCheckboxes(weakness, 'weaknesses', data));
+                });
+
+
+            // Add submit forms to relevant methods
             getPokemonForm.addEventListener('submit', getPokemonList);
             getPokemonNamesForm.addEventListener('submit', getPokemonNameList);
             getAllPokemonForm.addEventListener('submit', getAllPokemon);
             getPokemonTypeForm.addEventListener('submit', getPokemonTypes);
             addPokemonForm.addEventListener('submit', addPokemon);
+            removePokemonForm.addEventListener('submit', removePokemon);
+
+            //
+            const collapsible = document.querySelectorAll('.collapsible');
+            const content = document.querySelectorAll('.content');
+
+            for (let i = 0; i < collapsible.length; i++) {
+                collapsible[i].addEventListener('click', () => {
+                    if (i < content.length) {
+                        for (let j = 0; j < content.length; j++) {
+                            content[j].style.display = "none";
+                            collapsible[j].style.backgroundColor = '#f0f0f0';
+                        }
+
+                        content[i].style.display = "block";
+                        collapsible[i].style.backgroundColor = "#d0d0d0";
+                    }
+                })
+            }
         };
-
-        const populateCheckboxes = async (content, type) => {
-            fetch('/getPokemonTypes').then(response => response.json()).then(data => {
-                for (let i = 0; i < data.length; i++) {
-                    const lb = document.createElement('label');
-                    lb.setAttribute('for', type);
-                    lb.textContent = `${data[i]}: `;
-
-                    const cb = document.createElement('input');
-                    cb.setAttribute('id', `${type}_${data[i]}`);
-                    cb.setAttribute('type', 'checkbox');
-                    cb.setAttribute('name', type);
-                    cb.setAttribute('value', data[i]);
-
-                    content.appendChild(lb);
-                    content.appendChild(cb);
-                }
-            });
-        }
 
         window.onload = init;
     </script>
@@ -208,112 +235,133 @@
 
 <body>
     <section id="top">
-        <div class="collapsible">
-            <div class="content">
-                <div class="content-box">
-                    <h3>/getPokemon</h3>
-                    <form id='pokemonForm' action="/getPokemon" method="GET">
-                        <label for="name">Name: </label>
-                        <input id="name" name="name" type="text" />
-                        <label for="id">ID: </label>
-                        <input id="id" name="id" type="number" min="0" />
-                        <fieldset>
-                            <legend>Filter Types</legend>
-                            <div id="types"></div>
-                        </fieldset>
-                        <fieldset>
-                            <legend>Filter Weaknesses</legend>
-                            <div id="weaknesses"></div>
-                        </fieldset>
-                        <label><input type="radio" name="method" value="GET" checked>GET</label>
-                        <label><input type="radio" name="method" value="HEAD">HEAD</label>
-                        <button type="submit">Search Pokedex</button>
-                    </form>
-
-                </div>
+        <section id="selector">
+            <div class="collapsible">
+                <h3>/getPokemon</h3>
             </div>
-        </div>
-
-        <div class="collapsible">
-            <div class="content">
-                <div class="content-box">
-                    <h3>/getPokemonNames</h3>
-                    <form id='pokemonNamesForm' action="/getPokemonNames" method="GET">
-                        <label for="name">Name: </label>
-                        <input id="name" name="name" type="text" />
-                        <label for="id">ID: </label>
-                        <input id="id" name="id" type="number" min="0" />
-                        <fieldset>
-                            <legend>Filter Types</legend>
-                            <div id="types"></div>
-                        </fieldset>
-                        <fieldset>
-                            <legend>Filter Weaknesses</legend>
-                            <div id="weaknesses"></div>
-                        </fieldset>
-                        <label><input type="radio" name="method" value="GET" checked>GET</label>
-                        <label><input type="radio" name="method" value="HEAD">HEAD</label>
-                        <button type="submit">Search Pokedex</button>
-                    </form>
-                </div>
+            <div class="collapsible">
+                <h3>/getPokemonNames</h3>
             </div>
-        </div>
-
-        <div class="collapsible">
-            <div class="content">
-                <div class="content-box">
-                    <h3>/getAllPokemon</h3>
-                    <form id='allPokemonForm' action="/getAllPokemon" method="GET">
-                        <label><input type="radio" name="method" value="GET" checked>GET</label>
-                        <label><input type="radio" name="method" value="HEAD">HEAD</label>
-                        <button type="submit">Search Pokedex</button>
-                    </form>
-                </div>
+            <div class="collapsible">
+                <h3>/getAllPokemon</h3>
             </div>
-        </div>
-
-        <div class="collapsible">
-            <div class="content">
-                <div class="content-box">
-                    <h3>/getPokemonTypes</h3>
-                    <form id='pokemonTypeForm' action="/getPokemonTypes" method="GET">
-                        <label><input type="radio" name="method" value="GET" checked>GET</label>
-                        <label><input type="radio" name="method" value="HEAD">HEAD</label>
-                        <button type="submit">Search Pokedex</button>
-                    </form>
-                </div>
+            <div class="collapsible">
+                <h3>/getPokemonTypes</h3>
             </div>
-        </div>
-
-
-        <div class="collapsible">
-            <div class="content">
-                <div class="content-box">
-                    <h3>/addPokemon</h3>
-                    <form id='addPokemonForm' action="/addPokemon" method="post">
-                        <label>Name: <input type="text" name="name"></label>
-                        <label>Height: <input type="number" name="height"></label>
-                        <label>Weight: <input type="number" name="width"></label>
-                        <label>Image Link: <input type="text" name="img"></label>
-                        <fieldset>
-                            <legend>Filter Types</legend>
-                            <div id="types"></div>
-                        </fieldset>
-                        <fieldset>
-                            <legend>Filter Weaknesses</legend>
-                            <div id="weaknesses"></div>
-                        </fieldset>
-                        <button type="submit">Add Pokemon to Pokedex</button>
-
-                    </form>
-                </div>
+            <div class="collapsible">
+                <h3>/addPokemon</h3>
             </div>
-        </div>
-
-        <hr>
-        <section id="content">
-
+            <div class="collapsible">
+                <h3>/removePokemon</h3>
+            </div>
         </section>
+
+        <div class="content">
+            <div class="content-box">
+                <form id='pokemonForm' action="/getPokemon" method="GET">
+                    <label for="name">Name: </label>
+                    <input class="name" name="name" type="text" />
+                    <label for="id">ID: </label>
+                    <input class="id" name="id" type="number" min="0" />
+                    <fieldset>
+                        <legend>Filter Types</legend>
+                        <div class="types"></div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Filter Weaknesses</legend>
+                        <div class="weaknesses"></div>
+                    </fieldset>
+                    <label><input type="radio" name="method" value="GET" checked>GET</label>
+                    <label><input type="radio" name="method" value="HEAD">HEAD</label>
+                    <button type="submit">Search Pokedex</button>
+                </form>
+
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="content-box">
+                <form id='pokemonNamesForm' action="/getPokemonNames" method="GET">
+                    <label for="name">Name: </label>
+                    <input class="name" name="name" type="text" />
+                    <label for="id">ID: </label>
+                    <input class="id" name="id" type="number" min="0" />
+                    <fieldset>
+                        <legend>Filter Types</legend>
+                        <div class="types"></div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Filter Weaknesses</legend>
+                        <div class="weaknesses"></div>
+                    </fieldset>
+                    <label><input type="radio" name="method" value="GET" checked>GET</label>
+                    <label><input type="radio" name="method" value="HEAD">HEAD</label>
+                    <button type="submit">Search Pokedex</button>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="content">
+            <div class="content-box">
+                <form id='allPokemonForm' action="/getAllPokemon" method="GET">
+                    <label><input type="radio" name="method" value="GET" checked>GET</label>
+                    <label><input type="radio" name="method" value="HEAD">HEAD</label>
+                    <button type="submit">Search Pokedex</button>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="content">
+            <div class="content-box">
+                <form id='pokemonTypeForm' action="/getPokemonTypes" method="GET">
+                    <label><input type="radio" name="method" value="GET" checked>GET</label>
+                    <label><input type="radio" name="method" value="HEAD">HEAD</label>
+                    <button type="submit">Search Pokedex</button>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="content">
+            <div class="content-box">
+                <form id='addPokemonForm' action="/addPokemon" method="post">
+                    <label>Name: <input type="text" name="name"></label>
+                    <label>Height: <input type="number" step="any" name="height"></label>
+                    <label>Weight: <input type="number" step="any" name="weight"></label>
+                    <label>Image Link: <input type="text" name="img"></label>
+                    <fieldset>
+                        <legend>Filter Types</legend>
+                        <div class="types"></div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Filter Weaknesses</legend>
+                        <div class="weaknesses"></div>
+                    </fieldset>
+                    <button type="submit">Add Pokemon to Pokedex</button>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="content">
+            <div class="content-box">
+                <form id='removePokemonForm' action="/removePokemon" method="post">
+                    <label>Name: <input type="text" name="name"></label>
+                    <label>ID: <input type="number" name="id"></label>
+                    <button type="submit">Remove Pokemon from Pokedex</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <hr>
+    <section id="content"></section>
+
+    <section id="bottom">
+    <hr>
+        <a href="/documentation"><h3>View Documentation Here!</h3></a>
+    </section>
 </body>
 
 </html>

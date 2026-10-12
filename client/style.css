@@ -1,26 +1,179 @@
-#content{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    
+#content {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
-.card{
-    background-color: yellow;
-    border: 1rem black;
+#content h1 {
+  width:100%;
+}
+
+.types, .weaknesses {
+  display:flex;
+  flex-direction: wrap;
+  margin:0;
+}
+
+.types > *, .weaknesses > * {
+  margin-left: 0.5rem;
+  background-color: #e0e0e0;
+  border-radius: 0.2rem;
+}
+
+hr {
+  border: none;
+  background-color: rgb(15, 15, 15);
+  height: 3px;
+}
+
+#bottom {
+  background-color: rgb(224, 223, 223);
+  position: fixed;
+  left:0;
+  bottom:0;
+  width: 100%;
+  padding: 1rem;
+  padding-top: 0;
+}
+
+#bottom hr {
+  margin:0;
+  padding: 0;
+  max-width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+/* Card Properties */
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 15rem;
+  margin: 2rem;
+  padding: 1.5rem;
+
+  border: 0.35rem solid #181616;
+  border-radius: 0.45rem;
+  box-shadow: .7rem .7rem .8rem -0.2rem;
+}
+
+.card * {
+  margin: 0.2rem;
+}
+
+.card div {
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.card div * {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.card ul {
+  margin-block-start: 0;
+  padding-inline-start: 1.5rem;
+}
+
+.card img {
+  display: block;
+  background-color: aliceblue;
+  border: 0.1rem solid black;
+  width: 75%;
+  margin: auto;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Card Type Colors */
+.card.normal  {background-color: rgb(236, 179, 208);}
+.card.fire    {background-color: orangered;}
+.card.water   {background-color: rgb(12, 98, 151);}
+.card.grass   {background-color:rgb(106, 209, 106);}
+.card.ice     {background-color: lightskyblue;}
+.card.fighting{background-color: rgb(244, 227, 103);}
+.card.poison  {background-color: green;}
+.card.ground  {background-color: rgb(102, 86, 51);}
+.card.flying  {background-color: rgb(63, 88, 187);}
+.card.psychic {background-color: rgb(146, 18, 146);}
+.card.bug     {background-color: rgb(120, 141, 99);}
+.card.rock    {background-color: gray;}
+.card.ghost   {background-color: whitesmoke;}
+.card.dragon  {background-color: rgb(134, 24, 74);}
+
+
+/* Content Class  */
+#selector {
     display:flex;
-    flex-direction:column;
-    width: 20rem;
-    margin: 2rem;
-    padding: 1.5rem;
+  flex-direction: row;
 }
 
-.card img{
-    display:block;
-    background-color: aliceblue;
-    border: 5rem black;
-    width: 75%;
-    margin:auto;
-    margin-top: 0;
-    margin-bottom: 0;
+.collapsible {
+  cursor: pointer;
+  user-select: none;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  max-width: 15%;
+}
+
+.collapsible:hover {
+  background-color: #e0e0e0;
+}
+
+.collapsible:active {
+  background-color: #d0d0d0;
+}
+
+.methods code {
+  background-color: #e7e7e7;
+  color: #007bff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.content {
+  display: none;
+  max-width: 100%;
+}
+
+.content-box {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  background-color: #fafafa;
+  margin-top: 10px;
+}
+
+.param {
+  margin-left: 20px;
+}
+
+.example {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+  margin-left: 20px;
+}
+
+.example p {
+  margin: 5px 0;
+}
+
+code {
+  background-color: #333;
+  border-radius: 4px;
+  font-family: "Consolas", monospace;
+  padding: 2px 4px;
+  color: #f5f5f5;
 }

@@ -5,6 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokedex API Documentation</title>
+    <link rel="stylesheet" href="/style.css">
+
+    <script>
+        window.onload = () => {
+            document.querySelectorAll(".collapsible").forEach(t => {
+                t.addEventListener("click", (() => {
+                    document.querySelectorAll(".content").forEach((e => {
+                        e !== t.nextElementSibling && (e.style.display = "none")
+                    }
+                    ));
+                    const e = t.nextElementSibling;
+                    e.style.display = "block" === e.style.display ? "none" : "block"
+                }
+                ))
+            })
+        }
+    </script>
 </head>
 
 <body>
@@ -94,7 +111,7 @@
         </div>
     </div>
 
- <div class="endpoint">
+    <div class="endpoint">
         <h2 class="collapsible">/getPokemonTypes
             <span class="methods">
                 <code>GET</code>
@@ -106,18 +123,18 @@
                 <h3>Query Params</h3>
                 <p class="param">No supported params</p>
             </div>
-                <h3>Returns</h3>
-                <p class="params">A JSON array of all pokemon types strings.</p>
-                <p class="params">Format: <code>["type1", "type2", ...]</code></p>
-                <h3>Examples</h3>
-                <section class="example">
-                    <p>Request: <code>/getPokemonTypes</code></p>
-                    <p>Result: <code>
+            <h3>Returns</h3>
+            <p class="params">A JSON array of all pokemon types strings.</p>
+            <p class="params">Format: <code>["type1", "type2", ...]</code></p>
+            <h3>Examples</h3>
+            <section class="example">
+                <p>Request: <code>/getPokemonTypes</code></p>
+                <p>Result: <code>
                         ["Normal", "Fire", "Water", ...]
                     </code></p>
-                </section>
-            </div>
+            </section>
         </div>
+    </div>
     </div>
 
     <div class="endpoint">
@@ -148,6 +165,13 @@
             </div>
         </div>
     </div>
+
+    <section id="bottom">
+        <hr>
+        <a href="/">
+            <h3>View Application Here!</h3>
+        </a>
+    </section>
 </body>
 
 </html>
