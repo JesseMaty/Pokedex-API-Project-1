@@ -6,6 +6,7 @@
   flex-wrap: wrap;
   justify-content: space-evenly;
   margin:0;
+  margin-bottom: 4rem;
   padding: .5rem, 1rem;
 }
 

@@ -132,11 +132,6 @@
             handleResponse(response, method);
         }
 
-        const getPokemon = async (form) => {
-            const response = await apiRequest(form);
-            return response;
-        };
-
         const init = () => {
             const getPokemonForm = document.querySelector('#pokemonForm');
             const getPokemonNamesForm = document.querySelector('#pokemonNamesForm');
@@ -145,27 +140,27 @@
             const addPokemonForm = document.querySelector('#addPokemonForm');
             const removePokemonForm = document.querySelector('#removePokemonForm');
 
-            const getPokemonList = (e) => {
+            const getPokemon = (e) => {
                 e.preventDefault();
-                getPokemon(getPokemonForm);
+                apiRequest(getPokemonForm)
                 return false;
             }
 
-            const getPokemonNameList = (e) => {
+            const getPokemonNames = (e) => {
                 e.preventDefault();
-                getPokemon(getPokemonNamesForm);
+                apiRequest(getPokemonNamesForm);
                 return false;
             }
 
             const getAllPokemon = (e) => {
                 e.preventDefault();
-                getPokemon(getAllPokemonForm)
+                apiRequest(getAllPokemonForm)
                 return false;
             }
 
             const getPokemonTypes = (e) => {
                 e.preventDefault();
-                fetch(getPokemon(getPokemonTypeForm)).then(response => response.JSON).then(handleResponse(response));
+                apiRequest(getPokemonTypeForm);
                 return false;
             }
 
@@ -203,8 +198,8 @@
 
 
             // Add submit forms to relevant methods
-            getPokemonForm.addEventListener('submit', getPokemonList);
-            getPokemonNamesForm.addEventListener('submit', getPokemonNameList);
+            getPokemonForm.addEventListener('submit', getPokemon);
+            getPokemonNamesForm.addEventListener('submit', getPokemonNames);
             getAllPokemonForm.addEventListener('submit', getAllPokemon);
             getPokemonTypeForm.addEventListener('submit', getPokemonTypes);
             addPokemonForm.addEventListener('submit', addPokemon);

@@ -9,9 +9,14 @@ const documentation = fs.readFileSync(`${__dirname}/../client/documentation.html
 const style = fs.readFileSync(`${__dirname}/../client/style.css`);
 
 const respond = (request, response, status, object, type) => {
-    response.writeHead(status, { 'Content-Type': type });
+    const headers = {
+        'Content-Type': type,
+        'Content-Length': Buffer.byteLength(object, 'utf-8'),
+    }
 
-    if (request.acceptedType !== "HEAD" && status !== 204) {
+    response.writeHead(status, headers);
+
+    if (request.method !== "HEAD" && status !== 204) {
         response.write(object);
     }
 
@@ -114,7 +119,7 @@ const getPokemonNames = (request, response) => {
 }
 
 const filterPokemon = (filterStruct) => {
-    const { name, id, type, weaknesses} = filterStruct || {};
+    const { name, id, type, weaknesses } = filterStruct || {};
 
     // If no filter params
     if (!(name || id || type || weaknesses)) {
@@ -125,7 +130,7 @@ const filterPokemon = (filterStruct) => {
         let hasName = name ? pokemon.name.toLowerCase().includes(name.toLowerCase()) : true;
         let hasId = id ? pokemon.id === parseInt(id, 10) : true;
         let hasType = true;
-        let hasWeaknesses= true;
+        let hasWeaknesses = true;
         for (let i = 0; i < type.length; i++) {
             if (!pokemon.type.includes(type[i])) {
                 hasType = false;
@@ -134,7 +139,7 @@ const filterPokemon = (filterStruct) => {
         };
         for (let i = 0; i < weaknesses.length; i++) {
             if (!pokemon.weaknesses.includes(weaknesses[i])) {
-                hasWeaknesses= false;
+                hasWeaknesses = false;
                 break;
             }
         }
@@ -145,8 +150,8 @@ const filterPokemon = (filterStruct) => {
     return filter;
 }
 
-// Adds a pokemon to the pokedex
-const addPokemon = (request, response) => {
+// Parses and chunks request data
+const parseData = (request, callback) => {
     if (request.method === 'POST') {
         let chunks = [];
 
@@ -154,93 +159,116 @@ const addPokemon = (request, response) => {
             chunks.push(chunk);
         }).on('end', () => {
             const body = Buffer.concat(chunks).toString(); // MDN DOCS
-            const pokemon = JSON.parse(body);
-            const { name, height, weight, img } = pokemon;
-            const type = !pokemon.type ? undefined : Array.isArray(pokemon.type) ? pokemon.type : [pokemon.type];
-            const weaknesses = !pokemon.weaknesses ? undefined : Array.isArray(pokemon.weaknesses) ? pokemon.weaknesses : [pokemon.weaknesses];
+            let parsedObject = {};
 
-            const responseJSON = {
-                id: 'Updated',
-            };
+            if (request.headers['content-type'] === 'application/json') {
+                parsedObject = JSON.parse(body);
+            }
+            else if (request.headers['content-type'] === 'application/x-www-form-urlencoded') {
+                const params = new URLSearchParams(body);
 
-            // If pokemon currently exists, update it
-            const existingPokemon = pokedex.find(pokemon => pokemon.name === name)
-            if (existingPokemon) {
-                existingPokemon.height = height || existingPokemon.height;
-                existingPokemon.weight = weight || existingPokemon.weight;
-                existingPokemon.type = [type] || existingPokemon.type;
-                existingPokemon.weaknesses = [weaknesses] || existingPokemon.weaknesses;
-                existingPokemon.img = img || existingPokemon.img;
+                ['name', 'id', 'height', 'weight', 'img'].forEach((key) => {
+                    if (params.has(key)) parsedObject[key] = params.get(key);
+                })
 
-                return respondJSON(request, response, 204, responseJSON);
+                ['type', 'weaknesses'].forEach((key) => {
+                    if (params.has(key)) parsedObject[key] = params.getAll(key);
+                })
             }
 
-            // Ensure Necessary data is included
-            if (name === '' || height === '' || weight === '' || !type) {
-                responseJSON.message = 'Must include a name, height, weight, and type(s)';
-                responseJSON.id = 'Bad Request';
-
-                return respondJSON(request, response, 400, responseJSON);
-            }
-
-            // Create and add pokemon
-            const newPokemon = {
-                name: name,
-                id: pokedex.length + 1,
-                num: (pokedex.length + 1).toString().padStart(3, '0'),
-                height: `${Number(height).toFixed(2)} m`,
-                weight: `${Number(weight).toFixed(1)} kg`,
-                img: img,
-                type: type,
-                weaknesses: weaknesses || [],
-            }
-
-            pokedex.push(newPokemon);
-            responseJSON.id = 'Created';
-            responseJSON.message = 'Created new pokemon!';
-            return respondJSON(request, response, 201, responseJSON);
-
-        })
+            callback(parsedObject);
+        });
     }
 }
 
-const removePokemon = (request, response) => {
-    if (request.method === 'POST') {
-        let chunks = [];
+// Adds a pokemon to the pokedex
+const addPokemon = (request, response) => {
+    parseData(request, (pokemon) => {
+        const name = pokemon.name ? pokemon.name.trim() : '';
+        const { height, weight, img } = pokemon;
+        const type = !pokemon.type ? undefined : Array.isArray(pokemon.type) ? pokemon.type : [pokemon.type];
+        const weaknesses = !pokemon.weaknesses ? undefined : Array.isArray(pokemon.weaknesses) ? pokemon.weaknesses : [pokemon.weaknesses];
 
-        request.on('data', (chunk) => {
-            chunks.push(chunk);
-        }).on('end', () => {
-            const body = Buffer.concat(chunks).toString(); // MDN DOCS
-            const pokemon = JSON.parse(body);
-            const { name, id } = pokemon;
+        const responseJSON = {
+            id: 'Updated',
+        };
 
-            const responseJSON = {
-                message: 'Couldn\'t find Pokemon with given name or id',
-                id: 'Not Found',
-            }
-
-            // Make sure name or id exists
-            if (!name && !id) {
-                return respondJSON(request, response, 400, responseJSON);
-            }
-
-            responseJSON.message = 'Couldn\'t find Pokemon with given name or id';
-            responseJSON.id = 'Not Found';
-
-            // Filter pokemon and remove pokemon with same id/name
-            const index = pokedex.findIndex(pokemon => pokemon.name.toLowerCase() === name.toLowerCase() || parseInt(pokemon.id) === parseInt(id));
-
-            if(index < 0) return respondJSON(request, response, 404, responseJSON);
-            
-            pokedex.splice(index, 1);
-
-            responseJSON.message = '';
-            responseJSON.id = 'Removed';
+        // If pokemon currently exists, update it
+        const existingPokemon = pokedex.find(pokemon => pokemon.name === name)
+        if (existingPokemon) {
+            existingPokemon.height = height || existingPokemon.height;
+            existingPokemon.weight = weight || existingPokemon.weight;
+            existingPokemon.type = type || existingPokemon.type;
+            existingPokemon.weaknesses = weaknesses || existingPokemon.weaknesses;
+            existingPokemon.img = img || existingPokemon.img;
 
             return respondJSON(request, response, 204, responseJSON);
-        });
-    }
+        }
+
+        // Ensure Necessary data is included
+        if (name === '' || height === '' || weight === '' || type.length <= 0) {
+            responseJSON.message = 'Must include a name, height, weight, and type(s)';
+            responseJSON.id = 'Bad Request';
+
+            return respondJSON(request, response, 400, responseJSON);
+        }
+
+        // Create and add pokemon
+        const newPokemon = {
+            name: name,
+            id: pokedex.length + 1,
+            num: (pokedex.length + 1).toString().padStart(3, '0'),
+            height: `${Number(height).toFixed(2)} m`,
+            weight: `${Number(weight).toFixed(1)} kg`,
+            img: img,
+            type: type,
+            weaknesses: weaknesses || [],
+        }
+
+        pokedex.push(newPokemon);
+        responseJSON.id = 'Created';
+        responseJSON.message = 'Created ' + JSON.stringify(newPokemon);
+        return respondJSON(request, response, 201, responseJSON);
+    })
+}
+
+const removePokemon = (request, response) => {
+    parseData(request, (pokemon) => {
+        const { name, id } = pokemon;
+
+        const responseJSON = {
+            message: 'Include a corresponding name or id',
+            id: 'Bad Request',
+        }
+
+        // Make sure name or id exists
+        if (!name && !id) {
+            return respondJSON(request, response, 400, responseJSON);
+        }
+
+        // If name and id, make sure they match
+        // Filter pokemon and remove pokemon with same id/name
+        const nameIndex = pokedex.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+        const idIndex = pokedex.findIndex(p => parseInt(p.id) === parseInt(id));
+        
+        // Make sure name and id match if both included
+        if(!(name && id && nameIndex === idIndex)){
+            responseJSON.mesesage = 'Name and Id must match to the corresponding pokemon'
+            return respondJSON(request, response, 400, responseJSON);
+        }
+        const index = (nameIndex < 0) ? (idIndex < 0) ? -1 : idIndex : nameIndex;
+
+        responseJSON.message = 'Couldn\'t find Pokemon with given name or id';
+        responseJSON.id = 'Not Found';
+        if (index < 0) return respondJSON(request, response, 404, responseJSON);
+
+        pokedex.splice(index, 1);
+
+        responseJSON.message = '';
+        responseJSON.id = 'Removed';
+
+        return respondJSON(request, response, 204, responseJSON);
+    })
 }
 
 module.exports = {
