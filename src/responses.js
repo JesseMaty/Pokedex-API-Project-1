@@ -35,6 +35,14 @@ const getDocumentation = (request, response) => {
     respond(request, response, 200, documentation, 'text/html');
 }
 
+const notFound = (request, response) => {
+    const responseJSON = {
+        message: 'Could not find the page you are looking for.',
+        id: 'Not Found',
+    };
+    return respondJSON(request, response, 404, responseJSON);
+}
+
 const getPokemonTypes = (request, response) => {
     respondJSON(request, response, 200, typeList);
 }
@@ -239,6 +247,7 @@ module.exports = {
     getIndex,
     getStyle,
     getDocumentation,
+    notFound,
     getPokemon,
     getPokemonNames,
     getAllPokemon,

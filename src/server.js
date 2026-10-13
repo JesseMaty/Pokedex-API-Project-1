@@ -13,7 +13,7 @@ const urlStruct = {
     '/getPokemonTypes': responseHandler.getPokemonTypes,
     '/addPokemon': responseHandler.addPokemon,
     '/removePokemon': responseHandler.removePokemon,
-    default: responseHandler.getIndex,
+    default: responseHandler.notFound,
 };
 
 const onRequest = (request, response) => {
