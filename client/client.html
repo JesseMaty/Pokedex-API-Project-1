@@ -188,7 +188,7 @@
             const populateCheckboxes = async (content, type, data) => {
                 for (let i = 0; i < data.length; i++) {
                     const lb = document.createElement('label');
-                    lb.innerHTML = `${data[i]}: <input type='checkbox' name='${type}' value='${data[i]}'>`;
+                    lb.innerHTML = `<input type='checkbox' name='${type}' value='${data[i]}'>${data[i]}`;
 
                     content.appendChild(lb);
                 }
@@ -227,6 +227,10 @@
                     }
                 })
             }
+
+            // Open first collapsible content box on default
+            content[0].style.display = "block";
+            collapsible[0].style.backgroundColor = "#d0d0d0"
         };
 
         window.onload = init;
@@ -259,10 +263,8 @@
         <div class="content">
             <div class="content-box">
                 <form id='pokemonForm' action="/getPokemon" method="GET">
-                    <label for="name">Name: </label>
-                    <input class="name" name="name" type="text" />
-                    <label for="id">ID: </label>
-                    <input class="id" name="id" type="number" min="0" />
+                    <label>Name: <input class="name" name="name" type="text" /></label>
+                    <label>ID: <input class="id" name="id" type="number" min="0" /></label>
                     <fieldset>
                         <legend>Filter Types</legend>
                         <div class="types"></div>
@@ -282,10 +284,8 @@
         <div class="content">
             <div class="content-box">
                 <form id='pokemonNamesForm' action="/getPokemonNames" method="GET">
-                    <label for="name">Name: </label>
-                    <input class="name" name="name" type="text" />
-                    <label for="id">ID: </label>
-                    <input class="id" name="id" type="number" min="0" />
+                    <label>Name: <input class="name" name="name" type="text" /></label>
+                    <label>ID: <input class="id" name="id" type="number" min="0" /></label>
                     <fieldset>
                         <legend>Filter Types</legend>
                         <div class="types"></div>
@@ -359,8 +359,10 @@
     <section id="content"></section>
 
     <section id="bottom">
-    <hr>
-        <a href="/documentation"><h3>View Documentation Here!</h3></a>
+        <hr>
+        <a href="/documentation">
+            <h3>View Documentation Here!</h3>
+        </a>
     </section>
 </body>
 

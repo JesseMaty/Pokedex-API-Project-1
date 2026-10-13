@@ -1,11 +1,20 @@
+
+
 #content {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: space-evenly;
+  margin:0;
+  padding: .5rem, 1rem;
 }
 
 #content h1 {
   width:100%;
+}
+
+fieldset{
+    background-color: #e0e0e0;
 }
 
 .types, .weaknesses {
@@ -16,8 +25,15 @@
 
 .types > *, .weaknesses > * {
   margin-left: 0.5rem;
-  background-color: #e0e0e0;
+  background-color:white;
+  border: 0.05rem solid black;
   border-radius: 0.2rem;
+  padding: 0.3rem;
+}
+
+p {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 hr {
@@ -26,20 +42,24 @@ hr {
   height: 3px;
 }
 
+
 #bottom {
   background-color: rgb(224, 223, 223);
   position: fixed;
   left:0;
   bottom:0;
   width: 100%;
-  padding: 1rem;
+  padding: 0.5rem;
   padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
 }
 
 #bottom hr {
   margin:0;
   padding: 0;
-  max-width: 100%;
+  width: 100%;
   margin-bottom: 0.5rem;
 }
 
@@ -53,7 +73,9 @@ hr {
 
   border: 0.35rem solid #181616;
   border-radius: 0.45rem;
-  box-shadow: .7rem .7rem .8rem -0.2rem;
+  box-shadow: 1rem 1rem 2rem -1rem;
+
+  transition: transform 0.2s ease;
 }
 
 .card * {
@@ -87,13 +109,17 @@ hr {
   margin-bottom: 0;
 }
 
+.card:hover{
+  transform: scale(1.1);
+}
 /* Card Type Colors */
 .card.normal  {background-color: rgb(236, 179, 208);}
 .card.fire    {background-color: orangered;}
 .card.water   {background-color: rgb(12, 98, 151);}
+.card.electric {background-color: rgb(255, 255, 83);}
 .card.grass   {background-color:rgb(106, 209, 106);}
 .card.ice     {background-color: lightskyblue;}
-.card.fighting{background-color: rgb(244, 227, 103);}
+.card.fighting{background-color: rgb(214, 206, 147);}
 .card.poison  {background-color: green;}
 .card.ground  {background-color: rgb(102, 86, 51);}
 .card.flying  {background-color: rgb(63, 88, 187);}
@@ -106,21 +132,27 @@ hr {
 
 /* Content Class  */
 #selector {
-    display:flex;
+  display:flex;
   flex-direction: row;
+  margin-bottom: 0;
 }
 
 .collapsible {
   cursor: pointer;
   user-select: none;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 0;
   padding: 10px;
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   border-radius: 5px;
   transition: background-color 0.3s ease;
-  max-width: 15%;
+  width:100%;
+}
+
+.collapsible > * {
+  margin-top:0;
+  margin-bottom:0;
 }
 
 .collapsible:hover {
@@ -149,8 +181,8 @@ hr {
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 15px;
-  background-color: #fafafa;
-  margin-top: 10px;
+  background-color: #d4d4d4;
+  margin-top: 2px;
 }
 
 .param {
